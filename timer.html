@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="tamer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title> 25:00 - Timer For study</title>
+    <link rel="shortcut icon"  type="image/x-icon" href="./Images/1MU6pR-LogoMakr.png">
+</head>
+
+
+
+<body>
+
+
+
+    <section id="mytimer" class="timer-for-stydy">       
+    <div class="timerrr">
+    <div class="timer" id="timer">25:00</div>
+    <div class="controls" id="controls">
+        <button class="start" id="start"><i class="fa-regular fa-circle-play"></i></button>
+        <button class="stop" id="stop"><i class="fa-regular fa-circle-stop"></i></button>
+        <button class="reset" id="reset"><i class="fa-solid fa-rotate-right"></i></button>
+    </div>
+    <div>
+        <label class="pomodoro" for="workDuration">Pomodoro</label>
+        <input type="number" id="workDuration" value="25">
+    </div>
+    <div>
+        <label class="short-break" for="shortBreakDuration">Short Break</label>
+        <input type="number" id="shortBreakDuration" value="5">
+    </div>
+</div>
+</section>
+
+
+
+<section id="about" class="music-sec">
+    <div class="logo">
+        <img src="Images/1MU6pR-LogoMakr.png">
+        <h2>Timer For Study</h2>
+    </div>
+    <div class="about-timer">
+        <h3> What is Timer For Study ?</h3>
+        <p> Welcome to our timer website, the perfect companion for staying productive and organized.
+            Whether you're studying for exams, 
+           focusing on work tasks, or simply looking to manage your time efficiently, 
+           our timer tools have got you covered.
+            With customizable Pomodoro and short break durations, 
+            you can tailor your work sessions to match your workflow. Start, stop, 
+            and reset the timer with ease . </p>
+    </div>
+    <div class="songs">
+             <h2>You need Music ?</h2>
+        <iframe class="song" id="spotify" style="z-index: 1000;" width="300" height="80" frameborder="0" allowfullscreen="" 
+                data-src="https://open.spotify.com/embed/playlist/4Zjli1P13J5mmSCD5iKAXK?theme=0" 
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                src="https://open.spotify.com/embed/playlist/4Zjli1P13J5mmSCD5iKAXK?theme=0"></iframe>
+    </div>
+</section>
+
+
+
+
+<footer>
+    <div class="footer-links">
+        <ul>
+            <li><a href="#mytimer">Timer</a></li>
+            <li><a href="#about">About</a></li>
+        </ul>
+    </div>
+    <div class="social-icons">
+      <a href="https://www.instagram.com/"><i class="fa-brands fa-instagram fa-lg"></i></a>  
+      <a href="https://github.com/Moncif2005"><i class="fa-brands fa-github fa-lg"></i></a>  
+    </div>
+    <p class="footer-title">Copyrights @<span>Moncif Abdelilleh</span></p>
+</footer>
+
+
+
+
+
+
+
+
+<script>
+  let timerInterval;
+let timerRunning = false;
+let paused = false;
+let currentDuration = 0;
+let stopButtonClicked = false;
+let endTime = 0; // المتغير لحساب الوقت النهائي
+
+const timerDisplay = document.getElementById("timer");
+const startButton = document.getElementById("start");
+const stopButton = document.getElementById("stop");
+const resetButton = document.getElementById("reset");
+const resumeButton = document.getElementById("resume"); // زر الاستئناف
+const workDurationInput = document.getElementById("workDuration");
+const shortBreakDurationInput = document.getElementById("shortBreakDuration");
+
+let workDuration = parseInt(workDurationInput.value) * 60;
+let shortBreakDuration = parseInt(shortBreakDurationInput.value) * 60;
+
+function updateTimerDisplay(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainderSeconds = seconds % 60;
+    const display = `${minutes}:${remainderSeconds < 10 ? '0' : ''}${remainderSeconds}`;
+    timerDisplay.textContent = display;
+}
+
+function startTimer(duration) {
+    clearInterval(timerInterval);
+    endTime = Date.now() + duration * 1000; // تحديث endTime هنا
+    timerInterval = setInterval(() => {
+        const remainingTime = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+        updateTimerDisplay(remainingTime);
+
+        if (remainingTime === 0) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            alert("Time's up!");
+        }
+    }, 1000);
+}
+
+    startButton.addEventListener("click", () => {
+        if (!timerRunning) {
+            if (paused) {
+                startTimer(currentDuration);
+                paused = false;
+                stopButtonClicked = false;
+            } else {
+                startTimer(workDuration);
+            }
+            timerRunning = true;
+        }
+    });
+
+    stopButton.addEventListener("click", () => {
+        if (timerRunning) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            paused = true;
+            currentDuration = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+            stopButtonClicked = true;
+        }
+    });
+
+    resetButton.addEventListener("click", () => {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        paused = false;
+        workDuration = parseInt(workDurationInput.value) * 60;
+        shortBreakDuration = parseInt(shortBreakDurationInput.value) * 60;
+        updateTimerDisplay(workDuration);
+    });
+
+    workDurationInput.addEventListener("change", () => {
+        workDuration = parseInt(workDurationInput.value) * 60;
+        if (!timerRunning) {
+            updateTimerDisplay(workDuration);
+        }
+    });
+
+    shortBreakDurationInput.addEventListener("change", () => {
+        updateShortBreakDuration();
+    });
+
+    shortBreakDurationInput.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+            updateShortBreakDuration();
+        }
+    });
+
+    function updateShortBreakDuration() {
+        const newShortBreakDuration = parseInt(shortBreakDurationInput.value) * 60;
+        if (newShortBreakDuration > 0) {
+            shortBreakDuration = newShortBreakDuration;
+            if (!timerRunning) {
+                workDuration = shortBreakDuration;
+                startTimer(shortBreakDuration);
+                updateTimerDisplay(shortBreakDuration);
+            }
+        }
+    }
+</script>
+
+    </script>
+</body>
+</html>
